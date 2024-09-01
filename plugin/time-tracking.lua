@@ -95,7 +95,11 @@ local save_and_prev_buffer = function()
     vim.cmd.stopinsert()
   end
   vim.cmd.update()
-  vim.cmd.close()
+  if vim.api.nvim_win_get_config(0).relative == 'editor' then
+    vim.cmd.close()
+  else
+    vim.cmd.edit('#')
+  end
 end
 
 vim.filetype.add({
