@@ -82,7 +82,16 @@ local time_dec = function()
   end
 end
 
+local save_and_prev_buffer = function()
+  if vim.api.nvim_get_mode()["mode"] ~= 'n' then
+    vim.cmd.stopinsert()
+  end
+  vim.cmd.update()
+  vim.cmd.edit('#')
+end
+
 vim.keymap.set('n', '<Leader>yl', add_time_tracking_entry)
 vim.keymap.set('n', '<Leader>yL', edit_time_tracking_entry)
 vim.keymap.set({'i', 'n'}, '<S-Up>', time_inc)
 vim.keymap.set({'i', 'n'}, '<S-Down>', time_dec)
+vim.keymap.set({'i', 'n'}, '<C-s>', save_and_prev_buffer)
