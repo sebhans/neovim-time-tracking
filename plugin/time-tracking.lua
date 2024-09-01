@@ -31,6 +31,11 @@ local add_time_tracking_entry = function()
   vim.cmd('startinsert!')
 end
 
+local edit_time_tracking_entry = function()
+  open_time_tracking()
+  vim.cmd.normal('G04w')
+end
+
 local time_line_pattern = vim.re.compile('%s+{[%d]+}":"{[%d]+}%s.*')
 local time_pattern = vim.re.compile('{[%d]+}":"{[%d]+}')
 
@@ -78,5 +83,6 @@ local time_dec = function()
 end
 
 vim.keymap.set('n', '<Leader>yl', add_time_tracking_entry)
+vim.keymap.set('n', '<Leader>yL', edit_time_tracking_entry)
 vim.keymap.set({'i', 'n'}, '<S-Up>', time_inc)
 vim.keymap.set({'i', 'n'}, '<S-Down>', time_dec)
