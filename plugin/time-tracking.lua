@@ -10,7 +10,17 @@ end
 print('Loading time tracking …')
 
 local open_time_tracking = function()
+  local dummy = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_open_win(dummy, true, {
+    relative = 'editor',
+    row = vim.o.lines / 2 - 4,
+    col = vim.o.columns / 2 - 24,
+    width = 50,
+    height = 5,
+    border = 'rounded',
+  })
   vim.cmd.edit(vim.g.time_tracking_path)
+  vim.bo.buflisted = false
 end
 
 local append_lines = function(lines)
@@ -87,7 +97,7 @@ local save_and_prev_buffer = function()
     vim.cmd.stopinsert()
   end
   vim.cmd.update()
-  vim.cmd.edit('#')
+  vim.cmd.close()
 end
 
 vim.keymap.set('n', '<Leader>yl', add_time_tracking_entry)
