@@ -3,7 +3,15 @@ if vim.g.loaded_time_tracking then
 end
 vim.g.loaded_time_tracking = true
 
+if not vim.g.time_tracking_path then
+  vim.g.time_tracking_path = '~/.default.time-tracking'
+end
+
 print('Loading time tracking …')
+
+local open_time_tracking = function()
+  vim.cmd.edit(vim.g.time_tracking_path)
+end
 
 local append_lines = function(lines)
   vim.cmd.normal('G')
@@ -11,6 +19,7 @@ local append_lines = function(lines)
 end
 
 local add_time_tracking_entry = function()
+  open_time_tracking()
   local today = os.date('%A, %d.%m.%Y')
   local dayLine = vim.fn.search(today, 'nw')
   if dayLine == 0 then
