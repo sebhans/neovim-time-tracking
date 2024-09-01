@@ -7,8 +7,6 @@ if not vim.g.time_tracking_path then
   vim.g.time_tracking_path = '~/.default.time-tracking'
 end
 
-print('Loading time tracking …')
-
 local open_time_tracking = function()
   local dummy = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_open_win(dummy, true, {
