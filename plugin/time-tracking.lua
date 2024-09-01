@@ -100,8 +100,14 @@ local save_and_prev_buffer = function()
   vim.cmd.close()
 end
 
+vim.filetype.add({
+  extension = {
+    ['time-tracking'] = 'time-tracking'
+  },
+})
+
 vim.keymap.set('n', '<Leader>yl', add_time_tracking_entry)
 vim.keymap.set('n', '<Leader>yL', edit_time_tracking_entry)
-vim.keymap.set({'i', 'n'}, '<S-Up>', time_inc)
-vim.keymap.set({'i', 'n'}, '<S-Down>', time_dec)
-vim.keymap.set({'i', 'n'}, '<C-s>', save_and_prev_buffer)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc)', time_inc)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec)', time_dec)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDone)', save_and_prev_buffer)
