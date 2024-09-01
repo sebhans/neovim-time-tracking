@@ -108,8 +108,18 @@ vim.filetype.add({
   },
 })
 
+local success, wk = pcall(require, 'which-key')
+if success then
+  wk.add({
+    { '<Leader>y', group = "Sebastian's custom commands" },
+    { '<Leader>yl', desc = "add time tracking entry" },
+    { '<Leader>yL', desc = "edit last time tracking entry" },
+  })
+end
+
 vim.keymap.set('n', '<Leader>yl', add_time_tracking_entry)
 vim.keymap.set('n', '<Leader>yL', edit_time_tracking_entry)
+
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc)', time_inc)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec)', time_dec)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDone)', save_and_prev_buffer)
