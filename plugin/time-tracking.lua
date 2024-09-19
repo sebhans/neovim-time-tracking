@@ -44,20 +44,27 @@ local edit_time_tracking_entry = function()
   vim.cmd.normal('G04w')
 end
 
+local get_current_line = function()
+  local pos = vim.api.nvim_win_get_cursor(0)
+  return vim.api.nvim_buf_get_lines(0, pos[1] - 1, pos[1], true)[1]
+end
+
 local time_line_pattern = vim.re.compile('%s+{[%d]+}":"{[%d]+}%s.*')
 local time_pattern = vim.re.compile('{[%d]+}":"{[%d]+}')
 
 local get_time = function()
-  local pos = vim.api.nvim_win_get_cursor(0)
-  local line = vim.api.nvim_buf_get_lines(0, pos[1] - 1, pos[1], true)[1]
+  local line = get_current_line()
   return vim.re.match(line, time_line_pattern)
 end
 
-local replace_time = function(hour, minute)
-  local time_string = string.format('%02d:%02d', hour, minute)
+local replace_time_string = function(time_string)
   local view = vim.fn.winsaveview()
   vim.cmd('keeppatterns s/\\d\\+:\\d\\+/' .. time_string .. '/')
   vim.fn.winrestview(view)
+end
+
+local replace_time = function(hour, minute)
+  replace_time_string(string.format('%02d:%02d', hour, minute))
 end
 
 local time_inc = function()
@@ -88,6 +95,18 @@ local time_dec = function()
     end
     replace_time(hour, minute)
   end
+end
+
+local clone_time_tracking_entry = function()
+  local entry = get_current_line()
+  vim.cmd.normal('G')
+  if get_current_line() == '' then
+    vim.api.nvim_put({entry}, 'c', true, true)
+  else
+    vim.api.nvim_put({entry}, 'l', true, true)
+  end
+  replace_time_string(os.date('%H:%M'))
+  vim.cmd.normal('$')
 end
 
 local save_and_prev_buffer = function()
@@ -123,3 +142,4 @@ vim.keymap.set('n', '<Leader>yL', edit_time_tracking_entry)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc)', time_inc)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec)', time_dec)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDone)', save_and_prev_buffer)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingClone)', clone_time_tracking_entry)
