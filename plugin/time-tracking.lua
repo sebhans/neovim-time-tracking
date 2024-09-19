@@ -67,13 +67,13 @@ local replace_time = function(hour, minute)
   replace_time_string(string.format('%02d:%02d', hour, minute))
 end
 
-local time_inc = function()
+local time_inc = function(d)
   local hour, minute = get_time()
   if hour then
-    minute = minute + 1
+    minute = minute + d
     if minute >= 60 then
       hour = hour + 1
-      minute = 0
+      minute = minute - 60
       if hour >= 24 then
         hour = 0
       end
@@ -82,13 +82,13 @@ local time_inc = function()
   end
 end
 
-local time_dec = function()
+local time_dec = function(d)
   local hour, minute = get_time()
   if hour then
-    minute = minute - 1
+    minute = minute - d
     if minute < 0 then
       hour = hour - 1
-      minute = 59
+      minute = minute + 60
       if hour < 0 then
         hour = 23
       end
@@ -139,7 +139,9 @@ end
 vim.keymap.set('n', '<Leader>yl', add_time_tracking_entry)
 vim.keymap.set('n', '<Leader>yL', edit_time_tracking_entry)
 
-vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc)', time_inc)
-vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec)', time_dec)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc1)', function() time_inc(1) end)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc15)', function() time_inc(15) end)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec1)', function() time_dec(1) end)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec15)', function() time_dec(15) end)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDone)', save_and_prev_buffer)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingClone)', clone_time_tracking_entry)
