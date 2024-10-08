@@ -143,3 +143,110 @@ vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec1)', function() time_dec(1) en
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec15)', function() time_dec(15) end)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDone)', save_and_maybe_close)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingClone)', clone_time_tracking_entry)
+
+-- Worktime
+local Time = {}
+Time.__index = Time
+
+function Time:new(hour, minute)
+    local obj = setmetatable({}, self)
+    obj.hour = hour % 24 + math.floor(minute / 60)
+    obj.minute = minute % 60
+    return obj
+end
+
+function Time:__sub(other)
+    local result = Time:new(self.hour - other.hour, self.minute - other.minute)
+    while result.minute < 0 do
+        result.hour = result.hour - 1
+        result.minute = result.minute + 60
+    end
+    return result
+end
+
+function Time:__add(other)
+    local result = Time:new(self.hour + other.hour, self.minute + other.minute)
+    while result.minute >= 60 do
+        result.hour = result.hour + 1
+        result.minute = result.minute - 60
+    end
+    return result
+end
+
+function Time:to_minutes()
+    return self.hour * 60 + self.minute
+end
+
+function Time:__tostring()
+    return string.format("%d:%02d", self.hour, self.minute)
+end
+
+local Period = {}
+Period.__index = Period
+
+function Period:new(start_time, end_time)
+    local obj = setmetatable({}, self)
+    obj.start_time = start_time
+    obj.end_time = end_time
+    return obj
+end
+
+function Period:duration()
+    return self.end_time - self.start_time
+end
+
+function Period:__tostring()
+    return string.format("%s-%s", self.start_time, self.end_time)
+end
+
+local function parse_periods(s)
+    local finditer = string.gmatch(s, "(%d+):(%d+)%s*-%s*(%d+):(%d+)")
+    local periods = {}
+    for hour1, minute1, hour2, minute2 in finditer do
+        table.insert(periods, Period:new(Time:new(tonumber(hour1), tonumber(minute1)), Time:new(tonumber(hour2), tonumber(minute2))))
+    end
+    return periods
+end
+
+local function sum_of(periods)
+    local sum = Time:new(0, 0)
+    for _, p in ipairs(periods) do
+        sum = sum + p:duration()
+    end
+    return sum
+end
+
+local function time_between(periods)
+    local pause = Time:new(0, 0)
+    local previous_end_time = periods[1].start_time
+    for _, p in ipairs(periods) do
+        pause = pause + (p.start_time - previous_end_time)
+        previous_end_time = p.end_time
+    end
+    return pause
+end
+
+local swm_start = Time:new(6, 30)
+
+local function swm_end(work_time)
+    local pause = Time:new(0, 0)
+    local work_minutes = work_time:to_minutes()
+    if work_minutes > 9 * 60 then
+        pause = Time:new(0, 45)
+    elseif work_minutes > 6 * 60 then
+        pause = Time:new(0, 30)
+    end
+    return swm_start + work_time + pause
+end
+
+local function worktime()
+  vim.ui.input({ prompt = 'Times: ' }, function(input)
+    local periods = parse_periods(input)
+    local work = sum_of(periods)
+    local pause = time_between(periods)
+    local swm_end = swm_end(work)
+    
+    vim.api.nvim_echo({{string.format("Work: %s, Pause: %s, SWM: %s - %s", work, pause, swm_start, swm_end)}}, true, {})
+  end)
+end
+vim.keymap.set('n', '<Leader>yw', worktime)
