@@ -109,15 +109,13 @@ local clone_time_tracking_entry = function()
   vim.cmd.normal('$')
 end
 
-local save_and_prev_buffer = function()
+local save_and_maybe_close = function()
   if vim.api.nvim_get_mode()["mode"] ~= 'n' then
     vim.cmd.stopinsert()
   end
   vim.cmd.update()
   if vim.api.nvim_win_get_config(0).relative == 'editor' then
     vim.cmd.close()
-  else
-    vim.cmd.edit('#')
   end
 end
 
@@ -143,5 +141,5 @@ vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc1)', function() time_inc(1) en
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc15)', function() time_inc(15) end)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec1)', function() time_dec(1) end)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec15)', function() time_dec(15) end)
-vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDone)', save_and_prev_buffer)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDone)', save_and_maybe_close)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingClone)', clone_time_tracking_entry)
