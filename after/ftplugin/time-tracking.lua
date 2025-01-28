@@ -8,3 +8,4 @@ vim.keymap.set({     'n'}, '<Leader>yr', '<Plug>(TimeTrackingClone)', {buffer = 
 
 vim.opt_local.foldmethod = 'indent'
 vim.opt_local.shiftwidth = 2
+vim.opt_local.textwidth = 0
