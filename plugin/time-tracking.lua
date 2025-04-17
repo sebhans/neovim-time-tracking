@@ -119,29 +119,35 @@ local save_and_maybe_close = function()
   end
 end
 
+local save_and_quit = function()
+  if vim.api.nvim_get_mode()["mode"] ~= 'n' then
+    vim.cmd.stopinsert()
+  end
+  vim.cmd.x()
+end
+
 vim.filetype.add({
   extension = {
     ['time-tracking'] = 'time-tracking'
   },
 })
 
-local success, wk = pcall(require, 'which-key')
-if success then
+local have_wk, wk = pcall(require, 'which-key')
+if have_wk then
   wk.add({
     { '<Leader>y', group = "Sebastian's custom commands" },
-    { '<Leader>yl', desc = "add time tracking entry" },
-    { '<Leader>yL', desc = "edit last time tracking entry" },
   })
 end
 
-vim.keymap.set('n', '<Leader>yl', add_time_tracking_entry)
-vim.keymap.set('n', '<Leader>yL', edit_time_tracking_entry)
+vim.keymap.set('n', '<Leader>yl', add_time_tracking_entry, { desc = "add time tracking entry" })
+vim.keymap.set('n', '<Leader>yL', edit_time_tracking_entry, { desc = "edit last time tracking entry" })
 
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc1)', function() time_inc(1) end)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingInc15)', function() time_inc(15) end)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec1)', function() time_dec(1) end)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDec15)', function() time_dec(15) end)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingDone)', save_and_maybe_close)
+vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingQuit)', save_and_quit)
 vim.keymap.set({'i', 'n'}, '<Plug>(TimeTrackingClone)', clone_time_tracking_entry)
 
 -- Worktime
@@ -249,4 +255,4 @@ local function worktime()
     vim.api.nvim_echo({{string.format("Work: %s, Pause: %s, SWM: %s - %s", work, pause, swm_start, swm_end)}}, true, {})
   end)
 end
-vim.keymap.set('n', '<Leader>yw', worktime)
+vim.keymap.set('n', '<Leader>yw', worktime, { desc = "calculate work time" })
